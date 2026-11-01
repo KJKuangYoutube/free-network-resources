@@ -72,49 +72,40 @@ proxies:
 
 # ------------------------------------------------------------------------------
 # 3. 机场订阅集合提供商 (Proxy Providers 聚合体)
+#    请将下方的 url 替换为您自己的各个机场实际订阅链接
 # ------------------------------------------------------------------------------
 proxy-providers:
-  sub-101ghost:
+  sub-airport-1:
     type: http
-    url: "https://ww2.101ghost.pw/gh/a5ef4a7d4c47a6d0ad9bb02a62300135"
+    url: "https://your-airport-1.com/api/v1/client/subscribe?token=YOUR_TOKEN_HERE"
     interval: 86400
-    path: ./proxy_providers/101ghost.yaml
+    path: ./proxy_providers/airport_1.yaml
     health-check:
       enable: true
       interval: 600
       url: http://www.gstatic.com/generate_204
 
-  sub-glados:
+  sub-airport-2:
     type: http
-    url: "https://update.glados-config.com/mihomo/757913/14d1739/267837/glados.yaml"
+    url: "https://your-airport-2.com/link/YOUR_TOKEN?clash=3&extend=1"
     interval: 86400
-    path: ./proxy_providers/glados.yaml
+    path: ./proxy_providers/airport_2.yaml
     health-check:
       enable: true
       interval: 600
       url: http://www.gstatic.com/generate_204
 
-  sub-nomad:
+  sub-airport-3:
     type: http
-    url: "https://xubpq.no-mad-sub.one/link/LZjpvAhYtbSmg1Sj?clash=3&extend=1"
+    url: "https://your-airport-3.com/sub/clash.yaml"
     interval: 86400
-    path: ./proxy_providers/nomad.yaml
+    path: ./proxy_providers/airport_3.yaml
     health-check:
       enable: true
       interval: 600
       url: http://www.gstatic.com/generate_204
 
-  sub-503403:
-    type: http
-    url: "https://xmxosfepggzm.503403.xyz"
-    interval: 86400
-    path: ./proxy_providers/503403.yaml
-    health-check:
-      enable: true
-      interval: 600
-      url: http://www.gstatic.com/generate_204
-
-  sub-free:
+  sub-free-public:
     type: http
     url: "https://raw.githubusercontent.com/hello-world-1989/cn-news/main/clash-free.yaml"
     interval: 86400
@@ -136,11 +127,10 @@ proxy-groups:
       - "⚡ 自动优选 (全部订阅自动测速)"
       - "DIRECT"
     use:
-      - sub-101ghost
-      - sub-glados
-      - sub-nomad
-      - sub-503403
-      - sub-free
+      - sub-airport-1
+      - sub-airport-2
+      - sub-airport-3
+      - sub-free-public
 
   # 链式代理的前置中转选择池 (WARP 节点将通过此处选中的节点进行底层连接)
   - name: "🛫 前置中转选择"
@@ -148,11 +138,10 @@ proxy-groups:
     proxies:
       - "⚡ 自动优选 (全部订阅自动测速)"
     use:
-      - sub-101ghost
-      - sub-glados
-      - sub-nomad
-      - sub-503403
-      - sub-free
+      - sub-airport-1
+      - sub-airport-2
+      - sub-airport-3
+      - sub-free-public
 
   # 全局订阅延迟最低节点自动优选
   - name: "⚡ 自动优选 (全部订阅自动测速)"
@@ -161,29 +150,31 @@ proxy-groups:
     interval: 300
     tolerance: 50
     use:
-      - sub-101ghost
-      - sub-glados
-      - sub-nomad
-      - sub-503403
-      - sub-free
+      - sub-airport-1
+      - sub-airport-2
+      - sub-airport-3
+      - sub-free-public
 
-  # 单独订阅：101Ghost 节点池
-  - name: "👻 101Ghost专区"
+  # 单独订阅专区 (按需展开)
+  - name: "🛫 订阅一专区"
     type: select
     use:
-      - sub-101ghost
+      - sub-airport-1
 
-  # 单独订阅：GLaDOS 节点池
-  - name: "🍰 GLaDOS专区"
+  - name: "🛫 订阅二专区"
     type: select
     use:
-      - sub-glados
+      - sub-airport-2
 
-  # 单独订阅：NoMad 节点池
-  - name: "🌐 NoMad专区"
+  - name: "🛫 订阅三专区"
     type: select
     use:
-      - sub-nomad
+      - sub-airport-3
+
+  - name: "🌐 公共测试节点"
+    type: select
+    use:
+      - sub-free-public
 
   # 细分场景：AI 专属通道（推荐走 WARP 链式清洁 IP 落地，防止封号）
   - name: "🤖 AI专属 (ChatGPT/Claude/Gemini)"
