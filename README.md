@@ -78,10 +78,10 @@
 [ 用户本地设备 ]
        │
        ▼ (本地高速握手，延迟仅 15ms)
-[ 第一跳：普通免费中继节点 / 高速专线 ]
+[ 第一跳：多订阅机场聚合池 / 自动优选低延迟前置 ]
        │
        ▼ (节点间加密中继隧道)
-[ 第二跳：Cloudflare WARP / Proton 原生 WireGuard ]
+[ 第二跳：Cloudflare WARP 原生 WireGuard 纯净落地 ]
        │
        ▼ (固定纯净大厂出口 IP，0 风控)
 [ 目标网站：OpenAI / Claude / Google / GitHub ]
@@ -89,6 +89,27 @@
 
 - **第一跳 (Front Proxy)**：负责解决本地跨境连接速度慢、丢包高的问题；
 - **第二跳 (Exit Node)**：负责彻底漂白公网出口 IP，告别任何封号与验证码困扰！
+
+### ⚡ 官方一键开箱即用聚合订阅文件 (All-in-One Relay Profile)
+
+为了方便大家直接在 **Clash Verge Rev** 或 **Mihomo Party** 中一键使用，我们已经在仓库中维护了一份经过精心调优的完整配置模板：
+* **配置源文件**：[`profiles/all-in-one-relay.yaml`](./profiles/all-in-one-relay.yaml)
+* **原始直链 (Raw URL)**：
+  ```text
+  https://raw.githubusercontent.com/KJKuangYoutube/free-network-resources/main/profiles/all-in-one-relay.yaml
+  ```
+* **一键集成特性**：
+  1. **多订阅自动聚合 (`proxy-providers`)**：将 101Ghost、GLaDOS、NoMad 等多个独立机场订阅一键自动拉取、自动合并为一个节点池；
+  2. **内置 WireGuard 原生落地**：预置好经过优化的 Cloudflare WARP 节点参数；
+  3. **Relay 链式代理策略组**：自动串联 `前置机场高速中转` ➔ `WARP 干净 IP 落地`；
+  4. **全自动 Loyalsoldier 权威分流规则**：AI 专属通道（ChatGPT/Claude 走清洁落地）、国际流媒体加速、国内域名直接直连、恶意广告直接拦截。
+
+#### 📥 Clash Verge Rev 极速导入教程：
+1. 复制上述 GitHub Raw 链接；
+2. 打开 Clash Verge Rev，进入左侧 **「订阅 (Profiles)」**；
+3. 在顶部输入框粘贴该链接，点击 **「保存 (Save)」**；
+4. 右键点击刚刚下载的配置卡片，选择 **「使用 (Use)」**；
+5. 在左侧 **「代理」** 中，将总开关选择为 **「⛓️ 链式代理 (前置中转+WARP落地)」**，即可畅享满血无阻、0 验证码的纯净网络！
 
 ---
 
