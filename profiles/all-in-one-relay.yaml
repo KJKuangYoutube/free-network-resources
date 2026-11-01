@@ -4,7 +4,7 @@
 # 核心特性：
 # 1. 多机场订阅合并聚合 (Proxy Providers)
 # 2. WireGuard (Cloudflare WARP) 原生清洁 IP 落地节点
-# 3. Relay 两跳链式代理 (前置机场过境 + WARP清洁落地，彻底告别验证码与AI封锁)
+# 3. dialer-proxy 两跳链式代理 (前置机场过境 + WARP清洁落地，彻底告别验证码与AI封锁)
 # 4. 全自动化 Loyalsoldier 权威分流规则集 (AI/流媒体/国内直连/广告拦截)
 # ==============================================================================
 
@@ -51,9 +51,10 @@ dns:
 
 # ------------------------------------------------------------------------------
 # 2. 本地独立落地节点 (WireGuard / Cloudflare WARP 干净出口)
+#    采用 Mihomo 最新推荐的 dialer-proxy 链式绑定前置中转
 # ------------------------------------------------------------------------------
 proxies:
-  - name: "Cloudflare-WARP-落地"
+  - name: "🛡️ Cloudflare-WARP (链式落地)"
     type: wireguard
     server: engage.cloudflareclient.com
     port: 2408
@@ -67,6 +68,7 @@ proxies:
     dns:
       - 1.1.1.1
       - 1.0.0.1
+    dialer-proxy: "🛫 前置中转选择"
 
 # ------------------------------------------------------------------------------
 # 3. 机场订阅集合提供商 (Proxy Providers 聚合体)
@@ -123,16 +125,15 @@ proxy-providers:
       url: http://www.gstatic.com/generate_204
 
 # ------------------------------------------------------------------------------
-# 4. 策略组 (Proxy Groups：包含 Relay 链式代理与全自动聚合优选)
+# 4. 策略组 (Proxy Groups：包含 dialer-proxy 链式前置选择与自动聚合优选)
 # ------------------------------------------------------------------------------
 proxy-groups:
   # 总控主策略
   - name: "🚀 节点选择"
     type: select
     proxies:
-      - "⛓️ 链式代理 (前置中转+WARP落地)"
+      - "🛡️ Cloudflare-WARP (链式落地)"
       - "⚡ 自动优选 (全部订阅自动测速)"
-      - "Cloudflare-WARP-落地"
       - "DIRECT"
     use:
       - sub-101ghost
@@ -141,14 +142,7 @@ proxy-groups:
       - sub-503403
       - sub-free
 
-  # 链式代理核心组：第一跳过境前置，第二跳 WARP 落地出公网
-  - name: "⛓️ 链式代理 (前置中转+WARP落地)"
-    type: relay
-    proxies:
-      - "🛫 前置中转选择"
-      - "Cloudflare-WARP-落地"
-
-  # 链式代理的前置节点选择池
+  # 链式代理的前置中转选择池 (WARP 节点将通过此处选中的节点进行底层连接)
   - name: "🛫 前置中转选择"
     type: select
     proxies:
@@ -191,13 +185,12 @@ proxy-groups:
     use:
       - sub-nomad
 
-  # 细分场景：AI 专属通道（推荐走链式清洁 IP 落地，防止封号）
+  # 细分场景：AI 专属通道（推荐走 WARP 链式清洁 IP 落地，防止封号）
   - name: "🤖 AI专属 (ChatGPT/Claude/Gemini)"
     type: select
     proxies:
-      - "⛓️ 链式代理 (前置中转+WARP落地)"
+      - "🛡️ Cloudflare-WARP (链式落地)"
       - "🚀 节点选择"
-      - "Cloudflare-WARP-落地"
 
   # 细分场景：全球流媒体 (YouTube/Netflix/Spotify)
   - name: "📺 国际流媒体"
@@ -205,7 +198,7 @@ proxy-groups:
     proxies:
       - "🚀 节点选择"
       - "⚡ 自动优选 (全部订阅自动测速)"
-      - "⛓️ 链式代理 (前置中转+WARP落地)"
+      - "🛡️ Cloudflare-WARP (链式落地)"
 
   # 细分场景：国外媒体与社交平台
   - name: "🌍 国外媒体"
