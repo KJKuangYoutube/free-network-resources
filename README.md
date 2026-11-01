@@ -70,46 +70,59 @@
 
 ---
 
-## 三、 两跳链式代理 (Relay Proxy) 终极玩法
+## 三、 核心配置中心：小火箭通用规则与 Clash 多订阅聚合器
 
-把上述两种资源结合起来，即可搭建业内公认最稳定、最安全的**企业级两跳中继拓扑**：
+为了让所有用户无论是使用手机还是电脑，都能以最省心的方式享受最高水准的纯净网络体验，本项目同时提供 **小火箭通用规则配置** 与 **Clash/Mihomo 多订阅全自动聚合器**：
 
-```text
-[ 用户本地设备 ]
-       │
-       ▼ (本地高速握手，延迟仅 15ms)
-[ 第一跳：多订阅机场聚合池 / 自动优选低延迟前置 ]
-       │
-       ▼ (节点间加密中继隧道)
-[ 第二跳：Cloudflare WARP 原生 WireGuard 纯净落地 ]
-       │
-       ▼ (固定纯净大厂出口 IP，0 风控)
-[ 目标网站：OpenAI / Claude / Google / GitHub ]
-```
+---
 
-- **第一跳 (Front Proxy)**：负责解决本地跨境连接速度慢、丢包高的问题；
-- **第二跳 (Exit Node)**：负责彻底漂白公网出口 IP，告别任何封号与验证码困扰！
+### 🚀 1. 小火箭 (Shadowrocket) 通用全能规则配置 (`shadowrocket.conf`)
 
-### ⚡ 官方一键开箱即用聚合订阅文件 (All-in-One Relay Profile)
+很多朋友在使用小火箭时，经常遇到“国内网站也走代理白白浪费流量”、“ChatGPT/Claude 经常报错或打不开”的尴尬。这是因为小火箭默认没有配备精细的分流大脑。
 
-为了方便大家直接在 **Clash Verge Rev** 或 **Mihomo Party** 中一键使用，我们已经在仓库中维护了一份经过精心调优的完整配置模板：
-* **配置源文件**：[`profiles/all-in-one-relay.yaml`](./profiles/all-in-one-relay.yaml)
-* **原始直链 (Raw URL)**：
+本项目特供一份**通用自适应小火箭远程配置文件**：
+* **远程配置链接 (Raw URL)**：
   ```text
-  https://raw.githubusercontent.com/KJKuangYoutube/free-network-resources/main/profiles/all-in-one-relay.yaml
+  https://raw.githubusercontent.com/KJKuangYoutube/free-network-resources/main/profiles/shadowrocket.conf
   ```
-* **一键集成特性**：
-  1. **多订阅自动聚合 (`proxy-providers`)**：将 101Ghost、GLaDOS、NoMad 等多个独立机场订阅一键自动拉取、自动合并为一个节点池；
-  2. **内置 WireGuard 原生落地**：预置好经过优化的 Cloudflare WARP 节点参数；
-  3. **Relay 链式代理策略组**：自动串联 `前置机场高速中转` ➔ `WARP 干净 IP 落地`；
-  4. **全自动 Loyalsoldier 权威分流规则**：AI 专属通道（ChatGPT/Claude 走清洁落地）、国际流媒体加速、国内域名直接直连、恶意广告直接拦截。
+* **核心亮点与为什么通用？**
+  * **黑科技自适应**：内置 `select = (.*)` 动态正则，**能自动识别并吸纳你从小火箭导入的任何机场的所有节点**！无论你订阅了 1 个机场还是 5 个机场，都能自动归拢到测速组中！
+  * **AI 专属分流**：ChatGPT、Claude、Gemini 自动匹配走最优质通道；
+  * **国内纯净直连**：同步 Loyalsoldier 大陆域名白名单，微信/B站/淘宝 100% 走本地直连，不耗费 1KB 机场流量；
+  * **广告直接屏蔽**：拦截常用广告追踪域名。
 
-#### 📥 Clash Verge Rev 极速导入教程：
-1. 复制上述 GitHub Raw 链接；
-2. 打开 Clash Verge Rev，进入左侧 **「订阅 (Profiles)」**；
-3. 在顶部输入框粘贴该链接，点击 **「保存 (Save)」**；
-4. 右键点击刚刚下载的配置卡片，选择 **「使用 (Use)」**；
-5. 在左侧 **「代理」** 中，将总开关选择为 **「⛓️ 链式代理 (前置中转+WARP落地)」**，即可畅享满血无阻、0 验证码的纯净网络！
+#### 📱 小火箭 10 秒极速导入方法：
+1. 复制上方 `shadowrocket.conf` 的 Raw 链接；
+2. 打开小火箭，点击底部 **「配置 (Config)」**；
+3. 点击右上角 **「➕ (添加配置)」**，将链接粘贴至 URL 输入框中，点击 **「下载」**；
+4. 下载成功后，在「远程文件」列表中找到它，**点击并选择「使用配置」**，搞定！
+
+---
+
+### 🚀 2. Clash / Mihomo 多订阅聚合器 (Fork 即用专属私有云)
+
+如果你手里有多个机场订阅，又想把 Cloudflare WARP 或 Proton VPN 整合进同一个订阅里，并且**绝不向任何第三方转换站泄露自己的私有 Token**，推荐直接 **Fork 本项目**：
+
+#### 🛠️ Fork 即用 3 步走：
+1. **Fork 本仓库**：点击本页面右上角的 **`Fork`** 按钮，复制一份到你自己的 GitHub 账号下；
+2. **填写你的专属配置**：
+   * 在你自己 Fork 的仓库中，新建或复制 `config.example.yaml` 为 **`config.yaml`**；
+   * 在里面填入你自己的各个机场订阅链接，可选开启 Cloudflare WARP 或 Proton WireGuard；
+3. **自动生成专属订阅直链**：
+   * 仓库内置的 GitHub Actions 每天会自动运行，生成标准纯净的 `dist/clash.yaml`；
+   * 你专属的永久私有订阅链接即为：
+     ```text
+     https://raw.githubusercontent.com/你的GitHub用户名/free-network-resources/main/dist/clash.yaml
+     ```
+   * 复制该链接直接填入 **Clash Verge Rev** 或 **Mihomo Party**，即可实现多机场自动合体、自动测速优选与权威规则分流！
+
+---
+
+### ⚡ 3. 官方预制聚合模板文件 (`all-in-one-relay.yaml`)
+
+如果你不想 Fork，只想本地测试或参考语法：
+* **配置源文件**：[`profiles/all-in-one-relay.yaml`](./profiles/all-in-one-relay.yaml)
+* 支持原生 `dialer-proxy` 链式代理与多订阅自动合并，可直接在客户端导入或作为本地模板修改。
 
 ---
 

@@ -1,0 +1,304 @@
+# ==============================================================================
+# KJKuang科技狂 - 全能多订阅聚合与纯净分流配置 (All-in-One Clash/Mihomo Profile)
+# 由自动化聚合脚本生成，支持全协议驱动、自动测速优选与权威分流
+# ==============================================================================
+
+port: 7890
+socks-port: 7891
+mixed-port: 7890
+allow-lan: false
+mode: rule
+log-level: info
+ipv6: false
+external-controller: 127.0.0.1:9090
+secret: ""
+
+# ------------------------------------------------------------------------------
+# 1. 高性能 DNS 模块 (Fake-IP 防泄漏架构)
+# ------------------------------------------------------------------------------
+dns:
+  enable: true
+  listen: 0.0.0.0:1053
+  ipv6: false
+  enhanced-mode: fake-ip
+  fake-ip-range: 198.18.0.1/16
+  fake-ip-filter:
+    - "*.lan"
+    - "*.local"
+    - "*.localhost"
+    - "stun.*"
+    - "time.*"
+    - "ntp.*"
+    - "+.msftconnecttest.com"
+    - "+.msftncsi.com"
+  nameserver:
+    - 223.5.5.5
+    - 119.29.29.29
+  fallback:
+    - https://1.1.1.1/dns-query
+    - https://dns.google/dns-query
+    - tls://8.8.8.8
+  fallback-filter:
+    geoip: true
+    geoip-code: CN
+    ipcidr:
+      - 240.0.0.0/4
+
+# ------------------------------------------------------------------------------
+# 2. 独立纯净出口节点 (WireGuard)
+# ------------------------------------------------------------------------------
+proxies:
+  - name: "🛡️ Cloudflare-WARP (落地出口)"
+    type: wireguard
+    server: engage.cloudflareclient.com
+    port: 2408
+    ip: 172.16.0.2
+    ipv6: 2606:4700:110:8f0b:cdc5:6d26:f24b:5396
+    private-key: cLk1Ufk2LhmxTgIxaX7bQ3ZXCdtsJMB1Mj4a9QF1/HA=
+    public-key: bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo=
+    udp: true
+    mtu: 1280
+    remote-dns-resolve: true
+    dns:
+      - 1.1.1.1
+      - 1.0.0.1
+    dialer-proxy: "🛫 前置中转选择"
+
+
+# ------------------------------------------------------------------------------
+# 3. 多订阅集合提供商 (Proxy Providers)
+# ------------------------------------------------------------------------------
+proxy-providers:
+  sub-1:
+    type: http
+    url: "https://your-airport-1.com/api/v1/client/subscribe?token=YOUR_TOKEN_HERE"
+    interval: 86400
+    path: ./proxy_providers/sub-1.yaml
+    health-check:
+      enable: true
+      interval: 600
+      url: http://www.gstatic.com/generate_204
+  sub-2:
+    type: http
+    url: "https://your-airport-2.com/link/YOUR_TOKEN?clash=3&extend=1"
+    interval: 86400
+    path: ./proxy_providers/sub-2.yaml
+    health-check:
+      enable: true
+      interval: 600
+      url: http://www.gstatic.com/generate_204
+  sub-3:
+    type: http
+    url: "https://raw.githubusercontent.com/hello-world-1989/cn-news/main/clash-free.yaml"
+    interval: 86400
+    path: ./proxy_providers/sub-3.yaml
+    health-check:
+      enable: true
+      interval: 600
+      url: http://www.gstatic.com/generate_204
+
+# ------------------------------------------------------------------------------
+# 4. 智能策略组编排 (Proxy Groups)
+# ------------------------------------------------------------------------------
+proxy-groups:
+  # 总控主选择器
+  - name: "🚀 节点选择"
+    type: select
+    proxies:
+      - "🛡️ Cloudflare-WARP (落地出口)"
+      - "⚡ 自动优选 (全部订阅自动测速)"
+      - "DIRECT"
+    use:
+      - sub-1
+      - sub-2
+      - sub-3
+
+  # 链式代理前置中转选择池
+  - name: "🛫 前置中转选择"
+    type: select
+    proxies:
+      - "⚡ 自动优选 (全部订阅自动测速)"
+    use:
+      - sub-1
+      - sub-2
+      - sub-3
+
+  # 全局并发低延迟自动优选
+  - name: "⚡ 自动优选 (全部订阅自动测速)"
+    type: url-test
+    url: "http://www.gstatic.com/generate_204"
+    interval: 300
+    tolerance: 50
+    use:
+      - sub-1
+      - sub-2
+      - sub-3
+
+  # AI 平台专属通道 (ChatGPT/Claude/Gemini)
+  - name: "🤖 AI专属 (ChatGPT/Claude/Gemini)"
+    type: select
+    proxies:
+      - "🛡️ Cloudflare-WARP (落地出口)"
+      - "🚀 节点选择"
+      - "⚡ 自动优选 (全部订阅自动测速)"
+
+  # 国际流媒体加速通道 (YouTube/Netflix)
+  - name: "📺 国际流媒体"
+    type: select
+    proxies:
+      - "🚀 节点选择"
+      - "⚡ 自动优选 (全部订阅自动测速)"
+      - "🛡️ Cloudflare-WARP (落地出口)"
+
+  # 兜底未知流量
+  - name: "🐟 漏网之鱼"
+    type: select
+    proxies:
+      - "🚀 节点选择"
+      - "DIRECT"
+
+# ------------------------------------------------------------------------------
+# 5. 权威规则集提供商 (Rule Providers - Loyalsoldier)
+# ------------------------------------------------------------------------------
+rule-providers:
+  reject:
+    type: http
+    behavior: domain
+    url: "https://raw.githubusercontent.com/Loyalsoldier/clash-rules/release/reject.txt"
+    path: ./ruleset/reject.yaml
+    interval: 86400
+
+  icloud:
+    type: http
+    behavior: domain
+    url: "https://raw.githubusercontent.com/Loyalsoldier/clash-rules/release/icloud.txt"
+    path: ./ruleset/icloud.yaml
+    interval: 86400
+
+  apple:
+    type: http
+    behavior: domain
+    url: "https://raw.githubusercontent.com/Loyalsoldier/clash-rules/release/apple.txt"
+    path: ./ruleset/apple.yaml
+    interval: 86400
+
+  google:
+    type: http
+    behavior: domain
+    url: "https://raw.githubusercontent.com/Loyalsoldier/clash-rules/release/google.txt"
+    path: ./ruleset/google.yaml
+    interval: 86400
+
+  proxy:
+    type: http
+    behavior: domain
+    url: "https://raw.githubusercontent.com/Loyalsoldier/clash-rules/release/proxy.txt"
+    path: ./ruleset/proxy.yaml
+    interval: 86400
+
+  direct:
+    type: http
+    behavior: domain
+    url: "https://raw.githubusercontent.com/Loyalsoldier/clash-rules/release/direct.txt"
+    path: ./ruleset/direct.yaml
+    interval: 86400
+
+  private:
+    type: http
+    behavior: domain
+    url: "https://raw.githubusercontent.com/Loyalsoldier/clash-rules/release/private.txt"
+    path: ./ruleset/private.yaml
+    interval: 86400
+
+  gfw:
+    type: http
+    behavior: domain
+    url: "https://raw.githubusercontent.com/Loyalsoldier/clash-rules/release/gfw.txt"
+    path: ./ruleset/gfw.yaml
+    interval: 86400
+
+  tld-not-cn:
+    type: http
+    behavior: domain
+    url: "https://raw.githubusercontent.com/Loyalsoldier/clash-rules/release/tld-not-cn.txt"
+    path: ./ruleset/tld-not-cn.yaml
+    interval: 86400
+
+  telegramcidr:
+    type: http
+    behavior: ipcidr
+    url: "https://raw.githubusercontent.com/Loyalsoldier/clash-rules/release/telegramcidr.txt"
+    path: ./ruleset/telegramcidr.yaml
+    interval: 86400
+
+  cncidr:
+    type: http
+    behavior: ipcidr
+    url: "https://raw.githubusercontent.com/Loyalsoldier/clash-rules/release/cncidr.txt"
+    path: ./ruleset/cncidr.yaml
+    interval: 86400
+
+  lancidr:
+    type: http
+    behavior: ipcidr
+    url: "https://raw.githubusercontent.com/Loyalsoldier/clash-rules/release/lancidr.txt"
+    path: ./ruleset/lancidr.yaml
+    interval: 86400
+
+  applications:
+    type: http
+    behavior: classical
+    url: "https://raw.githubusercontent.com/Loyalsoldier/clash-rules/release/applications.txt"
+    path: ./ruleset/applications.yaml
+    interval: 86400
+
+# ------------------------------------------------------------------------------
+# 6. 精细化分流规则体系 (从高到低逐级匹配)
+# ------------------------------------------------------------------------------
+rules:
+  # 应用与私网直连
+  - RULE-SET,applications,DIRECT
+  - RULE-SET,private,DIRECT
+
+  # 广告拦截
+  - RULE-SET,reject,REJECT
+
+  # AI 平台专属通道
+  - DOMAIN-SUFFIX,openai.com,🤖 AI专属 (ChatGPT/Claude/Gemini)
+  - DOMAIN-SUFFIX,chatgpt.com,🤖 AI专属 (ChatGPT/Claude/Gemini)
+  - DOMAIN-SUFFIX,oaistatic.com,🤖 AI专属 (ChatGPT/Claude/Gemini)
+  - DOMAIN-SUFFIX,oaiusercontent.com,🤖 AI专属 (ChatGPT/Claude/Gemini)
+  - DOMAIN-SUFFIX,anthropic.com,🤖 AI专属 (ChatGPT/Claude/Gemini)
+  - DOMAIN-SUFFIX,claude.ai,🤖 AI专属 (ChatGPT/Claude/Gemini)
+  - DOMAIN-SUFFIX,aistudio.google.com,🤖 AI专属 (ChatGPT/Claude/Gemini)
+  - DOMAIN-SUFFIX,generativelanguage.googleapis.com,🤖 AI专属 (ChatGPT/Claude/Gemini)
+  - DOMAIN-SUFFIX,deepseek.com,DIRECT
+
+  # 国际流媒体
+  - DOMAIN-SUFFIX,youtube.com,📺 国际流媒体
+  - DOMAIN-SUFFIX,googlevideo.com,📺 国际流媒体
+  - DOMAIN-SUFFIX,netflix.com,📺 国际流媒体
+  - DOMAIN-SUFFIX,netflix.net,📺 国际流媒体
+  - DOMAIN-SUFFIX,nflximg.net,📺 国际流媒体
+  - DOMAIN-SUFFIX,spotify.com,📺 国际流媒体
+
+  # 苹果服务直连
+  - RULE-SET,icloud,DIRECT
+  - RULE-SET,apple,DIRECT
+
+  # 海外服务走代理
+  - RULE-SET,google,🚀 节点选择
+  - RULE-SET,proxy,🚀 节点选择
+  - RULE-SET,gfw,🚀 节点选择
+  - RULE-SET,tld-not-cn,🚀 节点选择
+  - RULE-SET,telegramcidr,🚀 节点选择,no-resolve
+
+  # 大陆直连与局域网
+  - RULE-SET,direct,DIRECT
+  - RULE-SET,lancidr,DIRECT
+  - RULE-SET,cncidr,DIRECT
+  - GEOIP,LAN,DIRECT
+  - GEOIP,CN,DIRECT
+
+  # 兜底
+  - MATCH,🐟 漏网之鱼

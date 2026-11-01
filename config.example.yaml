@@ -1,0 +1,50 @@
+# ==============================================================================
+# KJKuang科技狂 聚合器配置模板 (Aggregator Configuration)
+# 复制本文件并重命名为 config.yaml，填入你自己的实际订阅与节点参数即可生效！
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# 1. 机场订阅列表 (支持任意数量，名称可自定义)
+# ------------------------------------------------------------------------------
+airports:
+  - name: "订阅一"
+    url: "https://your-airport-1.com/api/v1/client/subscribe?token=YOUR_TOKEN_HERE"
+
+  - name: "订阅二"
+    url: "https://your-airport-2.com/link/YOUR_TOKEN?clash=3&extend=1"
+
+  - name: "公共测试"
+    url: "https://raw.githubusercontent.com/hello-world-1989/cn-news/main/clash-free.yaml"
+
+# ------------------------------------------------------------------------------
+# 2. 独立大厂节点 (Cloudflare WARP 或 Proton VPN 纯净出口)
+# ------------------------------------------------------------------------------
+standalone_nodes:
+  # Cloudflare WARP 官方 WireGuard 节点
+  cloudflare_warp:
+    enable: true
+    name: "Cloudflare-WARP"
+    server: "engage.cloudflareclient.com"
+    port: 2408
+    ip: "172.16.0.2"
+    ipv6: "2606:4700:110:8f0b:cdc5:6d26:f24b:5396"
+    private_key: "cLk1Ufk2LhmxTgIxaX7bQ3ZXCdtsJMB1Mj4a9QF1/HA=" # 需替换为您通过提取器获得的专属 Base64 私钥
+    public_key: "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
+    mtu: 1280
+
+  # Proton VPN 官方免费 WireGuard 节点 (可从 Proton 网页后台免费下载 WireGuard 配置并填入)
+  proton_wireguard:
+    enable: false
+    name: "Proton-VPN-NL"
+    server: "nl-free-01.protonvpn.net"
+    port: 51820
+    ip: "10.2.0.2"
+    private_key: "aG9tZWJveXNyb2Nrc2hvbWVib3lzcm9ja3Nob21lYm95cz0=" # 需替换为您在 Proton 后台获取的 Base64 私钥
+    public_key: "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
+    mtu: 1420
+
+# ------------------------------------------------------------------------------
+# 3. 链式中继设置 (两跳中继：前置机场穿墙 + WARP/Proton 纯净落地)
+# ------------------------------------------------------------------------------
+chain_proxy:
+  enable: true # 设置为 true 时，上述独立节点将自动通过机场前置节点进行网络穿透
