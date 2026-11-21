@@ -154,6 +154,7 @@ def generate_clash_yaml(airports, standalone_nodes, chain_enable, output_path):
     if proton.get("enable"):
         landing_proxies.append(f'      - "🛡️ {proton.get("name", "Proton-VPN")} (瑞士纯净落地)"')
     landing_proxies_str = "\n".join(landing_proxies) if landing_proxies else ""
+    providers_str = "\n".join(providers_yaml) if providers_yaml else "  {}"
 
     # 组装完整的 YAML 文本
     content = f"""# ==============================================================================
@@ -212,7 +213,7 @@ proxies:
 # 3. 多订阅集合提供商 (Proxy Providers)
 # ------------------------------------------------------------------------------
 proxy-providers:
-{"\n".join(providers_yaml) if providers_yaml else "  {}"}
+{providers_str}
 
 # ------------------------------------------------------------------------------
 # 4. 智能策略组编排 (Proxy Groups)
