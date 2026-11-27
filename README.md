@@ -44,6 +44,7 @@
 | **101Ghost** | [101ghost.com ↗](https://101ghost.com/) | Shadowsocks / Trojan | 界面现代清爽，提供常规节点与新人试用配额，支持一键导入主流客户端。 |
 | **FreeV2** | [b.freev2.net ↗](https://b.freev2.net) | V2Ray / VLESS | 免费公共多节点聚合展示，适合在应急断网时快速提取单节点进行连通性测试。 |
 | **End-GFW** | [end-gfw.com ↗](https://end-gfw.com) | 多协议开源隧道 | 开源社区反网络封锁项目，收集整理公开开源中继资源，适合极客研究底层通信机制。 |
+| **FreeSocks** | [freesocks.org ↗](https://freesocks.org) | Shadowsocks / 通用节点 | 提供免费网络测试节点与代理资源，适合作为备用通道与日常连通性测试。 |
 
 > 💡 **小贴士**：部分服务商官网在部分网络环境下可能需要备用域名解析，若遇打不开可尝试使用不同 DNS（如 `1.1.1.1` 或 `8.8.8.8`）访问。
 
